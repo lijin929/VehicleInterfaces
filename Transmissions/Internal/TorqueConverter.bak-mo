@@ -1,0 +1,39 @@
+within VehicleInterfaces.Transmissions.Internal;
+  
+function TorqueConverter
+  input Real LambdaArray[:,:] "Torque converter characteristic lambda array";
+  input Real i "Speed ratio";
+  input Modelica.Units.SI.AngularVelocity PumpSpeed[:] "Pump speed, rad/s";
+  output Real PumpTorque[size(PumpSpeed,1),size(LambdaArray,1)] "Pump torque array, Nm";
+  
+protected
+  Integer columns[:] = 2:size(LambdaArray, 2);
+  Modelica.Blocks.Types.Smoothness smoothness = Modelica.Blocks.Types.Smoothness.LinearSegments;
+  Modelica.Blocks.Types.Extrapolation extrapolation = Modelica.Blocks.Types.Extrapolation.LastTwoPoints;
+  Modelica.Blocks.Types.ExternalCombiTable1D tableID = Modelica.Blocks.Types.ExternalCombiTable1D(
+    "NoName",
+    "NoName",
+    LambdaArray,
+    columns,
+    smoothness,
+    extrapolation,
+    false);
+  Real K "Torque ratio";
+  Real lambda(unit="min2/(m.rev2)", min=0) "Torque converter capacity";
+  Real ni(unit="rev/min") "Pump speed to rpm";
+  Real no(unit="rev/min") "Turbine speed to rpm";
+
+
+
+algorithm
+  ni:=Modelica.Units.Conversions.to_rpm(PumpSpeed);
+  no:=ni * i;
+  K:= Modelica.Blocks.Tables.Internal.getTable1DValueNoDer2(tableID, i, 1);
+  lambda:= Modelica.Blocks.Tables.Internal.getTable1DValueNoDer2(tableID, i, 3);
+  
+
+
+
+
+
+end TorqueConverter;
