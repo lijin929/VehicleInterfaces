@@ -64,8 +64,8 @@ if __name__ == '__main__':
     # mod.setContinuous()
     # 仿真求解设置
     # mod.getSimulationOptions()
-    table_size = 16
-    mod.setSimulationOptions(["stopTime=%s" % table_size,
+    table_size = 17
+    mod.setSimulationOptions(["stopTime=%s" % (table_size - 1),
                               "tolerance=0.1",
                               "stepSize=1",
                               "solver=dassl"])
@@ -73,10 +73,10 @@ if __name__ == '__main__':
     #                           "numberOfIntervals=%s" % (table_size+1)])
     # mod.getLinearizationOptions()
     # 开始计算
-    mod.simulate()
+    # mod.simulate()
     # mod.simulate(resultfile="tmpbouncingBall.mat")
     # mod.simulate(simflags="-noRootFinding -noEquidistantOutputFrequency=1 -initialStepSize=1 -maxStepSize=1")
-    # mod.simulate(simflags="-noEquidistantTimeGrid")
+    mod.simulate(simflags="-noEventEmit")
     # solutions = mod.getSolutions()
     output = pd.DataFrame({
         "time": mod.getSolutions("time")[0],
@@ -89,19 +89,31 @@ if __name__ == '__main__':
     output["Pt"] = output.nt * output.Tt / 9550
     output["eff"] = output.Pt / output.Pp
     output["loss"] = output.Pp - output.Pt
+    Tp = pd.DataFrame(
+        [mod.getSolutions("Tp[%s]" % (i + 1))[0] for i in range(len(engine))],
+        columns=["i=%s" % mod.getParameters('table[%s,1]' % (i + 1))[0] for i in range(table_size)]
+    )
+    Tp["ne"] = engine[:, 0]
 
 
-    # plt.figure()
-    # plt.plot(engine[:, 0], engine[:, 1], label="engine")
-    # plt.plot(output.np, output.Tp, label="cowork")
-    # for i in range(engine.size):
-    #     plt.plot(engine[:, 0],
-    #              mod.getSolutions("Tp[%s]" % (i + 1))[0],
-    #              label="i=%s" % mod.getSolutions('table[%s,1]' % (i + 1))[0])
-    # plt.legend()
-    # plt.xlabel("n /rpm")
-    # plt.ylabel("T /Nm")
-    # plt.show()
+    #绘制共同工作特性曲线
+    plt.figure()
+    plt.plot(engine[:, 0], engine[:, 1], label="engine")
+    plt.plot(output.np, output.Tp, linewidth=3, color="red", label="cowork")
+    for i in range(table_size):
+        label = "i=%s" % mod.getParameters('table[%s,1]' % (i + 1))[0]
+        plt.plot(Tp["ne"], Tp[label], label=label)
+    plt.legend(loc="right")
+    plt.xlabel("n /rpm")
+    plt.ylabel("T /Nm")
+    plt.show()
+    #绘制共同工作输出特性曲线
+    plt.figure()
+    plt.plot(output.nt, output.Tt, linewidth=3, color="red")
+    plt.legend(loc="right")
+    plt.xlabel("n /rpm")
+    plt.ylabel("T /Nm")
+    plt.show()
     #
     # #读取XXX_res.mat结果文件
     # import DyMat
