@@ -1,4 +1,5 @@
 InvertNormalizedInput
 InterpolateExternalVector
 VectorTable
+InterpolateVectorWith
 InterpolateVector
