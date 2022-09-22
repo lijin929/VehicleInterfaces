@@ -3,10 +3,8 @@ from OMPython import ModelicaSystem
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import util
 
-
-def print_hi(name):
-    pass
 
 
 # 按间距中的绿色按钮以运行脚本。
@@ -17,8 +15,8 @@ if __name__ == '__main__':
     # 加载VehicleInterfaces模型库，并选择导入的model
     mod = ModelicaSystem(fileName=LibPath,
                          modelName=modelName)
-    # BuildModel
-    mod.buildModel()
+    # BuildModel模型新建或有修改，编译一次即可，后续参数、仿真配置等的修改无需重新编译
+    # mod.buildModel()
     '''
     获取参数
     getQuantities()
@@ -29,12 +27,13 @@ if __name__ == '__main__':
     getSimulationOptions()
     getSolutions()
     '''
-    quantities = mod.getQuantities()
+    # quantities = mod.getQuantities()
     parameters = mod.getParameters()
-    continuous = mod.getContinuous()
+    # continuous = mod.getContinuous()
     # inputs = mod.getInputs()
+
+
     # 设置参数
-    # mod.setParameters("L.L=100")
     engine = np.array([[900, 1903],
                        [1000, 2138],
                        [1100, 2281],
@@ -44,27 +43,37 @@ if __name__ == '__main__':
                        [1700, 2041],
                        [1900, 1826],
                        [2050, 0]])
-    # table = [0, 1.93, 0, 6.23;
-    #         0.1, 1.89, 19, 6.34;
-    #         0.2, 1.8, 36, 6.42;
-    #         0.3, 1.71, 51, 6.48;
-    #         0.40, 1.58, 63, 6.5;
-    #         0.50, 1.43, 72, 6.395;
-    #         0.60, 1.35, 81, 5.636;
-    #         0.65, 1.27, 83, 5.401;
-    #         0.7, 1.23, 86, 4.951;
-    #         0.75, 1.17, 88, 4.547;
-    #         0.8, 1.12, 89, 4.117;
-    #         0.85, 1.05, 89, 3.686;
-    #         0.86, 1.05, 90, 3.616;
-    #         0.89, 1, 89, 3.208;
-    #         0.9, 1, 90, 3.059;
-    #         0.95, 1, 95, 1.733;
-    #         1, 1, 100, 0.016]
+    front_drive = [1.0, 1.0]
+    diameter = 0.43
+    oilDensity = 860
+    lambda_table = np.array([[0, 1.93, 0, 6.23],
+                            [0.1, 1.89, 19, 6.34],
+                            [0.2, 1.8, 36, 6.42],
+                            [0.3, 1.71, 51, 6.48],
+                            [0.40, 1.58, 63, 6.5],
+                            [0.50, 1.43, 72, 6.395],
+                            [0.60, 1.35, 81, 5.636],
+                            [0.65, 1.27, 83, 5.401],
+                            [0.7, 1.23, 86, 4.951],
+                            [0.75, 1.17, 88, 4.547],
+                            [0.8, 1.12, 89, 4.117],
+                            [0.85, 1.05, 89, 3.686],
+                            [0.86, 1.05, 90, 3.616],
+                            [0.89, 1, 89, 3.208],
+                            [0.9, 1, 90, 3.059],
+                            [0.95, 1, 95, 1.733],
+                            [1, 1, 100, 0.016]])
+
+    mod.setParameters("diameter=%s" % diameter)
+    mod.setParameters("oilDensity=%s" % oilDensity)
+    util.set_parameter(mod, "frontDrive", front_drive)
+    util.set_parameter(mod, "lambdaTable", lambda_table)
+    util.set_parameter(mod, "ne", engine)
+    util.set_parameter(mod, "timeTable.table", np.array([[i, i + 1] for i in range(len(lambda_table))]))
     # mod.setContinuous()
     # 仿真求解设置
     # mod.getSimulationOptions()
-    table_size = 17
+    table_size = len(lambda_table)
     mod.setSimulationOptions(["stopTime=%s" % (table_size - 1),
                               "tolerance=0.1",
                               "stepSize=1",
