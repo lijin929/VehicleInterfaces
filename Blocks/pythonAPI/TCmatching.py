@@ -11,7 +11,7 @@ import util
 if __name__ == '__main__':
     # VehicleInterfaces模型库的路径
     LibPath = "D:/Program Files/OpenModelica1.16.2-64bit/lib/omlibrary/VehicleInterfaces 2.0.0/package.mo"
-    modelName = "VehicleInterfaces.Task.TCmatchingWithFrontdrive"
+    modelName = "VehicleInterfaces.Task.TCmatchingWithFrontdriveTimetable"
     # 加载VehicleInterfaces模型库，并选择导入的model
     mod = ModelicaSystem(fileName=LibPath,
                          modelName=modelName)
