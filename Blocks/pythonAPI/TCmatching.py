@@ -100,7 +100,7 @@ if __name__ == '__main__':
     output["loss"] = output.Pp - output.Pt
     Tp = pd.DataFrame(
         [mod.getSolutions("Tp[%s]" % (i + 1))[0] for i in range(len(engine))],
-        columns=["i=%s" % mod.getParameters('table[%s,1]' % (i + 1))[0] for i in range(table_size)]
+        columns=["i=%s" % mod.getParameters('lambdaTable[%s,1]' % (i + 1))[0] for i in range(table_size)]
     )
     Tp["ne"] = engine[:, 0]
 
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     plt.plot(engine[:, 0], engine[:, 1], label="engine")
     plt.plot(output.np, output.Tp, linewidth=3, color="red", label="cowork")
     for i in range(table_size):
-        label = "i=%s" % mod.getParameters('table[%s,1]' % (i + 1))[0]
+        label = "i=%s" % mod.getParameters('lambdaTable[%s,1]' % (i + 1))[0]
         plt.plot(Tp["ne"], Tp[label], label=label)
     plt.legend(loc="right")
     plt.xlabel("n /rpm")
